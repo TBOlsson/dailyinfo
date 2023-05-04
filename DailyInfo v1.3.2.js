@@ -37,14 +37,14 @@ async function createWidget(currentVerion) {
   const latestVersion = await getLatestVersion();
   const quote = await getRandomDailyQuote();
   let lw = new ListWidget();
-  
+
   let gradient = new LinearGradient();
   gradient.colors = [
-    new Color(firstBackgroundColor), 
+    new Color(firstBackgroundColor),
     new Color(secondBackgroundColor),
   ];
   gradient.locations = [
-    0, 
+    0,
     1,
   ];
   gradient.startPoint = new Point(0, 0)
@@ -56,42 +56,49 @@ async function createWidget(currentVerion) {
   d.setHours(d.getHours() + 24);
   lw.refreshAfterDate = d;
 
-  if(currentVerion < latestVersion) {
-    addWidgetText(`There seems to be a newer version of this script to be downloaded. \n\nCurrent version: ${currentVerion} \nLatest version: ${latestVersion} \nGo to Scriptable to get a url to get the latest version`, lw, fontSize, textColor);
-    
+  if (currentVerion < latestVersion) {
+
+    addWidgetText(
+      `There seems to be a newer version of this script to be downloaded. \n\nCurrent version: ${currentVerion} \nLatest version: ${latestVersion} \nGo to Scriptable to get an url to get the latest version`, 
+      lw, 
+      fontSize, 
+      textColor
+    );
+
     return lw
+
   } else {
     addWidgetText(
-      `Vecka: ${getWeek()}`, 
-      lw, 
-      weekFontSize, 
+      `Vecka: ${getWeek()}`,
+      lw,
+      weekFontSize,
       textColor
     );
     lw.addSpacer(10);
-    
+
     addWidgetText(
-      `${formatDate()} - ${getWeekday(new Date(), useFunWeekdayNames)}`, 
-      lw, 
-      fontSize, 
+      `${formatDate()} - ${getWeekday(new Date(), useFunWeekdayNames)}`,
+      lw,
+      fontSize,
       textColor
     );
     lw.addSpacer(5);
-    
+
     addWidgetText(
-      daysUntilNextSalary(new Date(), salaryDay), 
-      lw, 
-      fontSize, 
+      daysUntilNextSalary(new Date(), salaryDay),
+      lw,
+      fontSize,
       textColor
     );
     lw.addSpacer(5);
-    
+
     addWidgetText(
-      quote, 
-      lw, 
-      10, 
+      quote,
+      lw,
+      10,
       textColor
     );
-    
+
     return lw;
   }
 }
@@ -104,14 +111,14 @@ function addWidgetText(text, widget, fontSize = 10, textColor = "black") {
   return wid
 }
 
-async function getRandomDailyQuote(){
+async function getRandomDailyQuote() {
   let quote = await new Request(`https://script.google.com/macros/s/AKfycbzvzWg-eubFOqYrCS0SuggOjqjJmqasJG0tN3uP6XAgumI1GmOMN1cEDY_eOylRQk1L/exec`).loadString();
   quote = JSON.parse(quote);
   quote = quote["Your random quote of the day is:"]
   return quote
 }
 
-async function getLatestVersion(){
+async function getLatestVersion() {
   let version = await new Request(`https://script.google.com/macros/s/AKfycbzvzWg-eubFOqYrCS0SuggOjqjJmqasJG0tN3uP6XAgumI1GmOMN1cEDY_eOylRQk1L/exec`).loadString();
   version = JSON.parse(version);
   version = version["LatestVersion"]
@@ -121,11 +128,11 @@ async function getLatestVersion(){
 function daysUntilNextSalary(date = new Date(), salaryDay = 25) {
   const today = new Date(date);
   const currentDay = today.getDate();
-  
+
   if (currentDay === salaryDay) {
     return "LÖN IDAG!! 💰🤑";
   }
-  
+
   const salaryMonth = (currentDay > salaryDay) ? today.getMonth() + 1 : today.getMonth();
   salaryDay = new Date(today.getFullYear(), salaryMonth, salaryDay);
   const dayOfWeek = salaryDay.getDay();
@@ -136,15 +143,15 @@ function daysUntilNextSalary(date = new Date(), salaryDay = 25) {
   } else if (dayOfWeek === 0) {
     salaryDay.setDate(salaryDay.getDate() - 2);
   }
-  
+
   const daysUntil = Math.ceil((salaryDay - today) / (1000 * 60 * 60 * 24));
   return daysUntil == 1 ? `${daysUntil} dag till lön` : `${daysUntil} dagar till lön`
 }
 
 function getWeekday(date = new Date(), toggleFunNames = true) {
   let wd = new Date(date).getDay();
-    
-  switch(wd){
+
+  switch (wd) {
     case 1:
       wd = "Måndag";
       break;
@@ -173,27 +180,27 @@ function getWeekday(date = new Date(), toggleFunNames = true) {
   return wd
 }
 
-function getWeek(date = new Date()){
+function getWeek(date = new Date()) {
   //function to get ISO8601 week
   let tdt = new Date(date.valueOf());
   const dayn = (new Date(date).getDay() + 6) % 7;
   tdt.setDate(tdt.getDate() - dayn + 3);
   const firstThursday = tdt.valueOf();
   tdt.setMonth(0, 1);
-  
-  if (tdt.getDay() !== 4){
+
+  if (tdt.getDay() !== 4) {
     tdt.setMonth(0, 1 + ((4 - tdt.getDay()) + 7) % 7);
   }
   let weekNum = 1 + Math.ceil((firstThursday - tdt) / 604800000);
-  return weekNum < 10 ? "0" + weekNum: weekNum;
+  return weekNum < 10 ? "0" + weekNum : weekNum;
 }
 
-function formatDate(date = new Date()){
+function formatDate(date = new Date()) {
   let d = new Date(date);
   let year = d.getFullYear();
   let month = d.getMonth() + 1;
   let day = d.getDate();
-  
+
   month = month < 10 ? `0${month}` : month;
   day = day < 10 ? `0${day}` : day;
 
