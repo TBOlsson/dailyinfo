@@ -1,33 +1,35 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: deep-green; icon-glyph: magic;
+//url that has latest version: github.com/TBOlsson/dailyinfo
+
 // update those two to determine payDay and id you want to use correct weekday names or not
 const salaryDay = 25;
 const useFunWeekdayNames = true;
 
-//obly needs to be updated if you want to change colours or font sizes
+//only needs to be updated if you want to change colours or font sizes
 const firstBackgroundColor = "ff5a5a";
 const secondBackgroundColor = "190a05";
 const textColor = "ffffff";
 const weekFontSize = 24;
 const fontSize = 12;
 
-// NO NEED TO CHANGE ANYTHING BELOW THIS
+// NO NEED TO CHANGE ANYTHING BELOW THIS, IF YOU EDITED THE VARIABLES ABOVE, YOU ONLY NEES TO UPDATE THE CODE BELOW
 //------------------------------------------
 
-const thisVersion = "1.3.1";
-
 // PATCH NOTES
+//1.3.2 changed layout and implemented version control
 //1.3.1 added salaryDay variable since pension and some region employees dont get paid 25th
 //1.3.0 added daily quote
 //1.2.0 added days until next salary
 //1.1.0 broke out hardcoded into functions
 //1.0.0 Made script
 
+const thisVersion = "1.3.2";
+
 const widget = await createWidget(thisVersion);
 
-config.runsInWidget ? Script.setWidget(widget) :
-  widget.presentMedium();
+config.runsInWidget ? Script.setWidget(widget) : widget.presentMedium();
 
 Script.complete();
 
@@ -54,19 +56,42 @@ async function createWidget(currentVerion) {
   d.setHours(d.getHours() + 24);
   lw.refreshAfterDate = d;
 
-  if(currentVerion !== latestVersion) {
-    addWidgetText(`There seems to be an newer version of this script to be downloaded. \n\nCurrent version: ${currentVerion} \nLatest version: ${latestVersion}`, lw, fontSize, textColor);
+  if(currentVerion < latestVersion) {
+    addWidgetText(`There seems to be a newer version of this script to be downloaded. \n\nCurrent version: ${currentVerion} \nLatest version: ${latestVersion} \nGo to Scriptable to get a url to get the latest version`, lw, fontSize, textColor);
+    
     return lw
   } else {
-    addWidgetText(`Vecka: ${getWeek()}`, lw, weekFontSize, textColor)
+    addWidgetText(
+      `Vecka: ${getWeek()}`, 
+      lw, 
+      weekFontSize, 
+      textColor
+    );
     lw.addSpacer(10);
-    addWidgetText(formatDate(), lw, fontSize, textColor);
+    
+    addWidgetText(
+      `${formatDate()} - ${getWeekday(new Date(), useFunWeekdayNames)}`, 
+      lw, 
+      fontSize, 
+      textColor
+    );
     lw.addSpacer(5);
-    addWidgetText(getWeekday(new Date(), useFunWeekdayNames), lw, fontSize, textColor);
+    
+    addWidgetText(
+      daysUntilNextSalary(new Date(), salaryDay), 
+      lw, 
+      fontSize, 
+      textColor
+    );
     lw.addSpacer(5);
-    addWidgetText(daysUntilNextSalary(new Date(), salaryDay), lw, fontSize, textColor);
-    lw.addSpacer(5);
-    addWidgetText(quote, lw, 10, textColor)
+    
+    addWidgetText(
+      quote, 
+      lw, 
+      10, 
+      textColor
+    );
+    
     return lw;
   }
 }
@@ -155,6 +180,7 @@ function getWeek(date = new Date()){
   tdt.setDate(tdt.getDate() - dayn + 3);
   const firstThursday = tdt.valueOf();
   tdt.setMonth(0, 1);
+  
   if (tdt.getDay() !== 4){
     tdt.setMonth(0, 1 + ((4 - tdt.getDay()) + 7) % 7);
   }
